@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/components/editorscreen.tsx","./src/components/progressoverlay.tsx","./src/components/uploadscreen.tsx","./src/lib/export.ts","./src/lib/facedetection.ts","./src/lib/processing.ts","./src/lib/render.ts"],"version":"5.9.3"}
