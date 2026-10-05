@@ -2,19 +2,199 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#09090f" />
-    <title>BlackDot — Anonymisation de visages</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a0a0e" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="Masque les visages d'une photo ou d'une vidéo directement dans votre navigateur. Rien n'est envoyé à un serveur."
     />
+    <title>Masque — Anonymisation de visages</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="apple-touch-icon" href="icon.svg" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="vendor/face-api.js" defer></script>
+    <script type="module" src="app.js"></script>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div class="aurora" aria-hidden="true"></div>
+
+    <!-- ===================== Upload ===================== -->
+    <section class="view" id="view-upload">
+      <header class="topbar">
+        <div class="brand">
+          <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><rect x="5" y="5" width="14" height="14" rx="4" fill="currentColor"/></svg></span>
+          <span class="brand-name">Masque</span>
+        </div>
+        <span class="badge">
+          <span class="badge-dot" aria-hidden="true"></span>
+          100&nbsp;% local
+        </span>
+      </header>
+
+      <main class="upload-main">
+        <div class="hero">
+          <h1 class="hero-title">Masquez les visages.<br /><span class="grad">Rien ne quitte votre appareil.</span></h1>
+          <p class="hero-sub">
+            Détection automatique, carrés noirs ajustables et export de votre photo ou vidéo.
+            Tout se passe dans le navigateur&nbsp;: aucun fichier n'est envoyé.
+          </p>
+        </div>
+
+        <div
+          class="dropzone"
+          id="dropzone"
+          role="button"
+          tabindex="0"
+          aria-label="Choisir ou déposer une image ou une vidéo"
+        >
+          <div class="dz-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 16V4m0 0-5 5m5-5 5 5" />
+              <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+            </svg>
+          </div>
+          <p class="dz-title">Déposez votre fichier ici</p>
+          <p class="dz-sub">ou cliquez pour parcourir — photo ou vidéo · collez avec <kbd>Ctrl</kbd>&nbsp;+&nbsp;<kbd>V</kbd></p>
+          <p class="dz-error" id="dz-error" hidden></p>
+          <input type="file" id="file-input" accept="image/*,video/*" hidden />
+        </div>
+
+        <div class="fps-row">
+          <label class="fps-label" id="fps-label">Précision vidéo — images analysées par seconde</label>
+          <div class="fps-control" role="group" aria-labelledby="fps-label">
+            <button class="chip" data-fps="3" type="button">3&nbsp;i/s</button>
+            <button class="chip active" data-fps="6" type="button">6&nbsp;i/s</button>
+            <button class="chip" data-fps="10" type="button">10&nbsp;i/s</button>
+            <button class="chip" data-fps="15" type="button">15&nbsp;i/s</button>
+          </div>
+        </div>
+      </main>
+
+      <footer class="features">
+        <div class="feature">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="7" height="7" rx="1.5"/><rect x="14" y="7" width="7" height="7" rx="1.5"/><path d="M5 14v3a2 2 0 0 0 2 2h3m8-5v3a2 2 0 0 1-2 2h-3"/></svg>
+          </span>
+          <div><div class="feature-title">Détection automatique</div><div class="feature-desc">Repère les visages tout seul</div></div>
+        </div>
+        <div class="feature">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4m12-4v4h-4"/><rect x="8" y="8" width="8" height="8"/></svg>
+          </span>
+          <div><div class="feature-title">Ajustable au pixel près</div><div class="feature-desc">Déplacez et redimensionnez chaque masque</div></div>
+        </div>
+        <div class="feature">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          </span>
+          <div><div class="feature-title">Export direct</div><div class="feature-desc">Photo PNG ou vidéo WebM</div></div>
+        </div>
+        <div class="feature">
+          <span class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+          </span>
+          <div><div class="feature-title">Confidentialité</div><div class="feature-desc">Aucune donnée envoyée</div></div>
+        </div>
+      </footer>
+
+      <footer class="legal">
+        <p>
+          <a href="mentions.html" target="_blank" rel="noopener">Mentions</a>
+          ·
+          <span id="legal-note">Traitement 100&nbsp;% local — le fichier n'est jamais transmis.</span>
+        </p>
+      </footer>
+    </section>
+
+    <!-- ===================== Processing ===================== -->
+    <section class="view" id="view-processing" hidden>
+      <div class="progress-card">
+        <div class="spinner" aria-hidden="true"></div>
+        <h2 class="progress-title" id="progress-title">Analyse en cours</h2>
+        <p class="progress-msg" id="progress-msg">Initialisation…</p>
+        <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-pct" id="progress-pct">0&nbsp;%</div>
+      </div>
+    </section>
+
+    <!-- ===================== Editor ===================== -->
+    <section class="view" id="view-editor" hidden>
+      <header class="topbar editor-top">
+        <div class="brand">
+          <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><rect x="5" y="5" width="14" height="14" rx="4" fill="currentColor"/></svg></span>
+          <span class="brand-name">Masque</span>
+        </div>
+        <div class="editor-actions">
+          <div class="style-group" role="group" aria-label="Style de masque">
+            <button class="chip active" data-style="box" type="button">Carré noir</button>
+            <button class="chip" data-style="blur" type="button">Flou</button>
+            <button class="chip" data-style="pixelate" type="button">Pixel</button>
+          </div>
+          <button class="btn ghost" id="btn-new" type="button">Nouveau fichier</button>
+          <button class="btn primary" id="btn-export" type="button">
+            <span class="btn-label">Télécharger</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="editor-body">
+        <div class="canvas-zone">
+          <div class="canvas-wrap" id="canvas-wrap">
+            <canvas class="layer base" id="base-canvas"></canvas>
+            <canvas class="layer overlay" id="overlay-canvas"></canvas>
+            <div class="empty-hint" id="empty-hint" hidden>
+              <p>Aucun visage détecté sur cette image.</p>
+              <p class="muted">Utilisez «&nbsp;Ajouter un masque&nbsp;» pour en créer un manuellement.</p>
+            </div>
+          </div>
+        </div>
+
+        <aside class="panel">
+          <div class="panel-section">
+            <div class="panel-title">Visages</div>
+            <div class="face-count"><strong id="face-count">0</strong> masque(s) sur cette image</div>
+            <div class="panel-btns">
+              <button class="btn small" id="btn-add" type="button">+ Ajouter</button>
+              <button class="btn small danger" id="btn-delete" type="button" disabled>Supprimer</button>
+            </div>
+            <div class="panel-btns">
+              <button class="btn small" id="btn-clear" type="button">Tout retirer</button>
+              <button class="btn small" id="btn-apply-all" type="button" data-video-only>Appliquer partout</button>
+            </div>
+          </div>
+
+          <div class="panel-section" id="format-section" data-image-only hidden>
+            <div class="panel-title">Format d'export</div>
+            <div class="style-group">
+              <button class="chip active" data-format="png" type="button">PNG</button>
+              <button class="chip" data-format="jpeg" type="button">JPEG</button>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <div class="panel-title">Raccourcis</div>
+            <ul class="shortcuts">
+              <li><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> déplacer</li>
+              <li><kbd>Maj</kbd> + flèches déplacer vite</li>
+              <li><kbd>Suppr</kbd> retirer le masque</li>
+              <li><kbd>Ctrl</kbd> + <kbd>Z</kbd> annuler</li>
+            </ul>
+          </div>
+
+          <p class="panel-hint">
+            Cliquez un masque pour le sélectionner. Glissez-le pour le déplacer,
+            tirez ses poignées pour l'étirer.
+          </p>
+        </aside>
+      </div>
+
+      <div class="timeline" id="timeline" data-video-only hidden>
+        <div class="timeline-scroll" id="timeline-scroll"></div>
+        <div class="timeline-info" id="timeline-info"></div>
+      </div>
+    </section>
+
   </body>
 </html>

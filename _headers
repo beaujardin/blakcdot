@@ -1,0 +1,16 @@
+# En-têtes de sécurité (utilisés par Netlify / Cloudflare Pages / Vercel).
+# Si votre hébergeur ne lit pas ce fichier, ces règles sont ignorées sans effet.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob: data:; connect-src 'self'; worker-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+
+/models/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/vendor/*
+  Cache-Control: public, max-age=31536000, immutable
